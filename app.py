@@ -18,7 +18,7 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route('/')
+@app.route('/home')
 def home():
     return render_template('home.html')
 

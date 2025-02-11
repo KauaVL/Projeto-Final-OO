@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painel Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Bem-vindo, Administrador</h1>
+        
+        <!-- Seção de Turmas -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Gerenciar Turmas</h4>
+                <a href="/turmas" class="btn btn-success">Ver Todas</a>
+            </div>
+        </div>
+
+        <!-- Chat Global -->
+        <div class="card mt-4">
+            <div class="card-header">Chat da Escola</div>
+            <div class="card-body">
+                <div id="mensagens" style="height: 300px; overflow-y: scroll"></div>
+                <input type="text" id="mensagem_input" class="form-control mt-2">
+                <button onclick="enviarMensagem()" class="btn btn-primary mt-2">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        
+        socket.on('nova_mensagem', (data) => {
+            const msgDiv = document.createElement('div');
+            msgDiv.innerHTML = `<strong>${data.usuario}:</strong> ${data.mensagem}`;
+            document.getElementById('mensagens').appendChild(msgDiv);
+        });
+
+        function enviarMensagem() {
+            const mensagem = document.getElementById('mensagem_input').value;
+            socket.emit('mensagem', {
+                mensagem: mensagem,
+                usuario: 'Admin' 
+            });
+            document.getElementById('mensagem_input').value = '';
+        }
+    </script>
+</body>
+</html>

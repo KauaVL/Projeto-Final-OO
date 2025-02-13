@@ -18,7 +18,7 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route('/home')
+@app.route('/')
 def home():
     return render_template('home.html')
 
@@ -32,11 +32,17 @@ def signup():
         user = User.query.filter_by(email=email).first()
         if user:
             flash('Email já registrado. Tente fazer login.')
-        else:
-            new_user = User(nome=nome, email=email, senha=senha, cargo=cargo)
-            db.session.add(new_user)
-            db.session.commit()
             return redirect(url_for('login'))
+        else:
+            try:
+                new_user = User(nome=nome, email=email, senha=senha, cargo=cargo)
+                db.session.add(new_user)
+                db.session.commit()
+                return redirect(url_for('login'))
+            except Exception:
+                db.session.rollback()
+                flash('Erro ao realizar cadastro. Tente novamente.')
+                return redirect(url_for('signup'))
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])

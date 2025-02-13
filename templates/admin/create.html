@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/create.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Create New User</h1>
+        <form action="{{ url_for('create_user') }}" method="POST">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" name="senha" required>
+            </div>
+                <div class="radio-group">
+                    <input type="radio" id="professor" name="cargo" value="professor" required>
+                    <label for="professor">Professor</label>
+                    <input type="radio" id="estudante" name="cargo" value="estudante" required>
+                    <label for="estudante">Estudante</label>
+            </div>
+            <button type="submit">Create User</button>
+        </form>
+        <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+    </div>
+</body>
+</html>

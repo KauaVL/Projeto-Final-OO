@@ -14,7 +14,6 @@ class User(db.Model):
     cargo = db.Column(db.String(50), nullable=False)
     senha = db.Column(db.String(150), nullable=False)
 
-
 with app.app_context():
     db.create_all()
 
@@ -60,6 +59,47 @@ def login():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
+
+@app.route('/admin/users', methods=['GET'])
+def read_users():
+    users = User.query.all()
+    return render_template('admin/read.html', users=users)
+
+@app.route('/admin/users/create', methods=['GET', 'POST'])
+def create_user():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        senha = request.form['senha']
+        cargo = request.form['cargo']
+        new_user = User(nome=nome, email=email, senha=senha, cargo=cargo)
+        db.session.add(new_user)
+        db.session.commit()
+        flash('Usuário criado com sucesso!')
+        return redirect(url_for('read_users'))
+    return render_template('admin/create.html')
+
+@app.route('/admin/users/update/<email>', methods=['GET', 'POST'])
+def update_user(email):
+    user = User.query.get_or_404(email)
+    if request.method == 'POST':
+        user.nome = request.form['nome']
+        user.senha = request.form['senha']
+        user.cargo = request.form['cargo']
+        db.session.commit()
+        flash('Usuário atualizado com sucesso!')
+        return redirect(url_for('read_users'))
+    return render_template('admin/update.html', user=user)
+
+@app.route('/admin/users/delete/<email>', methods=['GET', 'POST'])
+def delete_user(email):
+    user = User.query.get_or_404(email)
+    if request.method == 'POST':
+        db.session.delete(user)
+        db.session.commit()
+        flash('Usuário deletado com sucesso!')
+        return redirect(url_for('read_users'))
+    return render_template('admin/delete.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)

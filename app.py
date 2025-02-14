@@ -56,9 +56,9 @@ def login():
             flash('Credenciais inválidas. Tente novamente.')
     return render_template('login.html')
 
-@app.route('/dashboard')
+@app.route('/aluno/dashboard_aluno')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('aluno/dashboard_aluno.html')
 
 @app.route('/admin/users', methods=['GET', 'POST'])
 def users():

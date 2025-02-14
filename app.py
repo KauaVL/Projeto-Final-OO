@@ -61,11 +61,11 @@ def dashboard():
     return render_template('dashboard.html')
 
 @app.route('/admin/users', methods=['GET'])
-def read_users():
+def users():
     users = User.query.all()
     return render_template('admin/read.html', users=users)
 
-@app.route('/admin/users/create', methods=['GET', 'POST'])
+@app.route('/admin/create', methods=['GET', 'POST'])
 def create_user():
     if request.method == 'POST':
         nome = request.form['nome']
@@ -76,10 +76,10 @@ def create_user():
         db.session.add(new_user)
         db.session.commit()
         flash('Usuário criado com sucesso!')
-        return redirect(url_for('read_users'))
+        return redirect(url_for('users'))
     return render_template('admin/create.html')
 
-@app.route('/admin/users/update/<email>', methods=['GET', 'POST'])
+@app.route('/admin/update/<email>', methods=['GET', 'POST'])
 def update_user(email):
     user = User.query.get_or_404(email)
     if request.method == 'POST':
@@ -88,10 +88,10 @@ def update_user(email):
         user.cargo = request.form['cargo']
         db.session.commit()
         flash('Usuário atualizado com sucesso!')
-        return redirect(url_for('read_users'))
+        return redirect(url_for('users'))
     return render_template('admin/update.html', user=user)
 
-@app.route('/admin/users/delete/<email>', methods=['GET', 'POST'])
+@app.route('/admin/delete/<email>', methods=['GET', 'POST'])
 def delete_user(email):
     user = User.query.get_or_404(email)
     if request.method == 'POST':

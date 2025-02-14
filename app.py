@@ -1,6 +1,10 @@
 from flask import Flask, redirect, render_template, request, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
+ADMIN_LOGIN = {
+    'email': 'admin@admin.com',
+    'senha': 'admin123'
+}
 app = Flask(__name__)
 app.secret_key = 'supersenha'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -68,6 +72,10 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
+        if email == ADMIN_LOGIN['email'] and senha == ADMIN_LOGIN['senha']:
+            session['nome'] = 'Administrador'
+            session['cargo'] = 'admin'
+            return redirect(url_for('gerenciar_usuarios'))
         user = User.query.filter_by(email=email).first()
         if user and user.senha == senha:
             session['nome'] = user.nome

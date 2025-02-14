@@ -6,6 +6,30 @@
     <title>Gerenciar Usuários</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        function confirmDelete(email) {
+            if (confirm('Tem certeza que deseja deletar este usuário?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{{ url_for('users') }}";
+                
+                const methodInput = document.createElement('input');
+                methodInput.type = 'hidden';
+                methodInput.name = '_method';
+                methodInput.value = 'DELETE';
+                
+                const emailInput = document.createElement('input');
+                emailInput.type = 'hidden';
+                emailInput.name = 'email';
+                emailInput.value = email;
+                
+                form.appendChild(methodInput);
+                form.appendChild(emailInput);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        </script>
 </head>
 <body>
     <div class="navbar">
@@ -39,7 +63,7 @@
                             <td>{{ user.cargo }}</td>
                             <td>
                                 <a href="{{ url_for('update_user', email=user.email) }}" class="action-btn edit-btn"><i class="fas fa-pencil-alt"></i></a>
-                                <a href="{{ url_for('delete_user', email=user.email) }}" class="action-btn delete-btn"><i class="fas fa-trash"></i> </a>
+                                <a onclick="confirmDelete('{{ user.email }}')" class="action-btn delete-btn"><i class="fas fa-trash"></i> </a>
                             </td>
                         </tr>
                     {% endfor %}

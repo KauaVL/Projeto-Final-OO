@@ -60,10 +60,26 @@ def login():
 def dashboard():
     return render_template('dashboard.html')
 
-@app.route('/admin/users', methods=['GET'])
+@app.route('/admin/users', methods=['GET', 'POST'])
 def users():
     users = User.query.all()
+    if request.method == 'GET':
+        users = User.query.all()
+        return render_template('admin/read.html', users=users)
+    
+    elif request.method == 'POST' and request.form.get('_method') == 'DELETE':
+        email = request.form.get('email')
+        try:
+            user = User.query.filter_by(email=email).first_or_404()
+            db.session.delete(user)
+            db.session.commit()
+            flash('Usuário deletado com sucesso!')
+        except Exception as e:
+            db.session.rollback()
+            flash('Erro ao deletar usuário.')
+        return redirect(url_for('users'))
     return render_template('admin/read.html', users=users)
+
 
 @app.route('/admin/create', methods=['GET', 'POST'])
 def create_user():
@@ -72,11 +88,17 @@ def create_user():
         email = request.form['email']
         senha = request.form['senha']
         cargo = request.form['cargo']
-        new_user = User(nome=nome, email=email, senha=senha, cargo=cargo)
-        db.session.add(new_user)
-        db.session.commit()
-        flash('Usuário criado com sucesso!')
-        return redirect(url_for('users'))
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash('Email já está cadastrado. Por favor, use outro email.')
+            return render_template('admin/create.html')
+            
+        else:
+            new_user = User(nome=nome, email=email, senha=senha, cargo=cargo)
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Usuário criado com sucesso!')
+            return redirect(url_for('users'))
     return render_template('admin/create.html')
 
 @app.route('/admin/update/<email>', methods=['GET', 'POST'])
@@ -87,7 +109,6 @@ def update_user(email):
         user.senha = request.form['senha']
         user.cargo = request.form['cargo']
         db.session.commit()
-        flash('Usuário atualizado com sucesso!')
         return redirect(url_for('users'))
     return render_template('admin/update.html', user=user)
 
@@ -97,7 +118,6 @@ def delete_user(email):
     if request.method == 'POST':
         db.session.delete(user)
         db.session.commit()
-        flash('Usuário deletado com sucesso!')
         return redirect(url_for('read_users'))
     return render_template('admin/delete.html', user=user)
 

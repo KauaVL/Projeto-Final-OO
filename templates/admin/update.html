@@ -3,15 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update User</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Atualizar Userio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/update.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <div class="navbar">
+        <h2>Admin</h2>
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('users') }}"><i class="fas fa-users"></i> Gerenciar Usuários</a></li>
+            <li><a href="{{ url_for('create_user') }}"><i class="fas fa-user-plus"></i> Novo Usuário</a></li>
+        </ul>
+    </div>
     <div class="container">
-        <h1>Update User</h1>
-        <form action="{{ url_for('update_user', user_id=user.email) }}" method="POST">
+        <h1>Atualizar Usuario</h1>
+        <form action="{{ url_for('update_user', email=user.email) }}" method="POST">
             <div class="form-group">
-                <label for="nome">Name:</label>
+                <label for="nome">Nome:</label>
                 <input type="text" id="nome" name="nome" value="{{ user.nome }}" required>
             </div>
             <div class="form-group">
@@ -19,16 +28,16 @@
                 <input type="email" id="email" name="email" value="{{ user.email }}" required readonly>
             </div>
             <div class="form-group">
-                <label for="senha">Password:</label>
+                <label for="senha">Senha:</label>
                 <input type="password" id="senha" name="senha" value="{{ user.senha }}" required>
             </div>
             <div class="form-group">
-                <label for="cargo">Role:</label>
+                <label for="cargo">Cargo:</label>
                 <input type="text" id="cargo" name="cargo" value="{{ user.cargo }}" required>
             </div>
             <button type="submit">Update</button>
         </form>
-        <a href="{{ url_for('read_users') }}">Back to User List</a>
+        
     </div>
 </body>
 </html>

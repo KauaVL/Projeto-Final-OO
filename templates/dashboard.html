@@ -11,7 +11,7 @@
     <div class="container">
         <nav class="sidebar">
             <div class="logo-details">
-                <i class="fas fa-graduation-cap"></i>
+                <i class="fas fa-graduation-cap"> U N B</i>
             </div>
             <ul class="nav-links">
                 <li>
@@ -23,7 +23,7 @@
                 <li>
                     <a href="#">
                         <i class="fas fa-tasks"></i>
-                        <span class="link_name">Tarefas</span>
+                        <span class="link_name">Turmas Cadastradas</span>
                     </a>
                 </li>
                 <li>
@@ -48,8 +48,8 @@
                     <div class="profile-details">
                         <i class="fas fa-user-circle"></i>
                         <div class="name_job">
-                            <div class="name">{{ session.nome }}</div>
-                            <div class="job">{{ session.tipo }}</div>
+                            <div class="name">{{ session['nome'] }}</div>
+                            <div class="job">{{ session['cargo'] }}</div>
                         </div>
                     </div>
                 </li>
@@ -103,31 +103,7 @@
         </main>
     </div>
 
-    <div id="task-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Nova Tarefa</h2>
-            <form id="task-form">
-                <input type="text" id="task-title" placeholder="Título da Tarefa" required>
-                <textarea id="task-description" placeholder="Descrição" required></textarea>
-                <input type="date" id="task-date" required>
-                <button type="submit" class="submit-btn">Criar Tarefa</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="event-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Novo Evento</h2>
-            <form id="event-form">
-                <input type="text" id="event-title" placeholder="Título do Evento" required>
-                <textarea id="event-description" placeholder="Descrição" required></textarea>
-                <input type="datetime-local" id="event-datetime" required>
-                <button type="submit" class="submit-btn">Criar Evento</button>
-            </form>
-        </div>
-    </div>
+    
 
 </body>
 </html>

@@ -36,6 +36,8 @@ body {
     z-index: 100;
     transition: all 0.3s ease;
     padding: 6px 14px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
 .logo-details {
@@ -43,7 +45,10 @@ body {
     width: 100%;
     display: flex;
     align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 
 .logo-details i {
     font-size: 28px;
@@ -52,11 +57,6 @@ body {
     text-align: center;
 }
 
-.logo-details .logo_name {
-    font-size: 20px;
-    color: var(--white-color);
-    font-weight: 600;
-}
 
 .nav-links {
     margin-top: 10px;
@@ -163,14 +163,15 @@ header {
     position: fixed;
     bottom: 0;
     width: calc(var(--sidebar-width) - 28px);
-    background: var(--secondary-color);
-    padding: 10px;
+    background: #4169E1;
+    padding: 5px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .profile-details {
     display: flex;
     align-items: center;
+    margin-top: 15px;
 }
 
 .profile-details i {
@@ -180,9 +181,6 @@ header {
     text-align: center;
 }
 
-.name_job {
-    margin-left: 10px;
-}
 
 .name_job .name {
     font-size: 15px;

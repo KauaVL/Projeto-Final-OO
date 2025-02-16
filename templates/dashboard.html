@@ -9,61 +9,17 @@
 </head>
 <body>
     <div class="container">
-        <nav class="sidebar">
-            <div class="logo-details">
-                <i class="fas fa-graduation-cap"> U N B</i>
-            </div>
-            <ul class="nav-links">
-                <li>
-                    <a href="#" class="active">
-                        <i class="fas fa-home"></i>
-                        <span class="link_name">Home</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-tasks"></i>
-                        <span class="link_name">Turmas Cadastradas</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-calendar"></i>
-                        <span class="link_name">Agenda</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-cog"></i>
-                        <span class="link_name">Configurações</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="link_name">Sair</span>
-                    </a>
-                </li>
-                <li class="profile">
-                    <div class="profile-details">
-                        <i class="fas fa-user-circle"></i>
-                        <div class="name_job">
-                            <div class="name">{{ session['nome'] }}</div>
-                            <div class="job">{{ session['cargo'] }}</div>
-                        </div>
-                    </div>
-                </li>
+        <div class="navbar">
+            <h2>U N B</h2>
+            <ul>
+                <li><a href="#"><i class="fas fa-users"></i> Turmas Ministradas</a></li>
+                <li><a href="#"><i class="fas fa-user-plus"></i> Lançar Notas</a></li>
+                <li><a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a></li>
             </ul>
-        </nav>
+        </div>
         <main class="main-content">
             <header>
                 <h1>Dashboard</h1>
-                <div class="header-tools">
-                    <button class="notification-btn">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
-                    </button>
-                </div>
             </header>
             <div class="dashboard-grid">
                 <div class="card" id="summary-card">

@@ -111,7 +111,7 @@ Senha: admin123
 ## Contribuidores
 - Kaua Vale Leão
 - Arthur Henrique Vieira
-- Jânio
+- Jânio Lucas Pereira Carrilho
 
 ## Professor Orientador
 Prof. Henrique - Universidade de Brasília (UnB)

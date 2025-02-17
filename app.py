@@ -80,6 +80,7 @@ def login():
         if user and user.senha == senha:
             session['nome'] = user.nome
             session['cargo'] = user.cargo
+            session['email'] = user.email
             return redirect(url_for('dashboard'))
         else:
             flash('Credenciais inválidas. Tente novamente.')
@@ -266,6 +267,24 @@ def vizualizar_alunos(codigo):
     return render_template('admin/CRUD_turmas/vizualizar_alunos.html', 
                          turma=turma, 
                          alunos=alunos)
+
+
+@app.route('/professor/turmas', methods=['GET'])
+def visualizar_turmas():
+    email = session['email']
+    turmas = Turma.query.filter_by(professor_email=email).all()
+    return render_template('professor/visualizar_turmas.html', turmas=turmas)
+
+
+@app.route('/professor/turmas/alunos/<codigo>', methods=['GET'])
+def visualizar_alunos_prof(codigo):
+    turma = Turma.query.get_or_404(codigo)
+    alunos = turma.alunos
+    return render_template('professor/visualizar_alunos_prof.html', 
+                         turma=turma, 
+                         alunos=alunos)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

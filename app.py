@@ -284,6 +284,46 @@ def visualizar_alunos_prof(codigo):
                          turma=turma, 
                          alunos=alunos)
 
+@app.route('/professor/turmas/alunos/<codigo>/matricula', methods=['GET', 'POST'])
+def gerenciamento_aluno_prof(codigo):
+    turma = Turma.query.get_or_404(codigo)
+    
+    if request.method == 'POST':
+        alunos_selecionados = request.form.getlist('alunos[]')
+        try:
+            for email in alunos_selecionados:
+                aluno = User.query.get(email)
+                if aluno and aluno.cargo == 'Aluno':
+                    turma.alunos.append(aluno)
+            
+            db.session.commit()
+            return redirect(url_for('gerenciamento_aluno_prof', codigo=codigo))
+        except Exception as e:
+            db.session.rollback()
+            flash('Erro ao adicionar alunos.')
+    elif request.method == 'DELETE':
+        data = request.get_json()
+        email = data.get('email')
+
+        try:
+            aluno = User.query.get_or_404(email)
+        
+            turma.alunos.remove(aluno)
+            db.session.commit()
+            return jsonify({'success': True})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'error': str(e)}), 400
+    
+    alunos_matriculados = turma.alunos
+    alunos_disponiveis = User.query.filter_by(cargo='Aluno').filter(
+        ~User.turmas.any(Turma.codigo_disciplina == codigo)
+    ).all()
+    
+    return render_template('professor/gerenciamento_aluno_prof.html',
+                         turma=turma,
+                         alunos_disponiveis=alunos_disponiveis,
+                         alunos_matriculados=alunos_matriculados)
 
 
 if __name__ == '__main__':

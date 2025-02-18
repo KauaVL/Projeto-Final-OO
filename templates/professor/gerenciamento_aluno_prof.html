@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Alunos à Turma</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professor/gerenciamento_aluno_prof.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <h2>U N B</h2>
+        <ul>
+            <li><a href="{{ url_for('dashboard') }}"><i class="fa-solid fa-table-columns"></i>Dashboard</a></li>
+            <li><a href="{{ url_for('visualizar_turmas') }}"><i class="fas fa-users"></i>Turmas</a></li>
+            <li><a href="#"><i class="fas fa-user-plus"></i> Lançar Notas</a></li>
+            <li><a href="{{ url_for('visualizar_alunos_prof', codigo=turma.codigo_disciplina) }}"><i class="fa-solid fa-arrow-right-from-bracket"></i>Voltar</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Adicionar Alunos à Turma: {{ turma.nome }}</h1>
+        <div class="info-turma">
+            <p><strong>Código:</strong> {{ turma.codigo_disciplina }}</p>
+            <p><strong>Professor:</strong> {{ turma.professor.nome }}</p>
+            <p><strong>Período:</strong> {{ turma.ano }}.{{ turma.semestre }}</p>
+        </div>
+        
+        <form method="POST">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar alunos...">
+                <i class="fas fa-search"></i>
+            </div>
+
+            <div class="alunos-container">
+                <h2>Alunos Matriculados ({{ alunos|length }})</h2>
+                {% if alunos %}
+                <table class="alunos-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aluno in alunos %}
+                        <tr class="aluno-item">
+                            <td>{{ aluno.nome }}</td>
+                            <td>{{ aluno.email }}</td>
+                            <td>
+                                <button type="button" onclick="removerAluno('{{ aluno.email }}')" class="remove-btn">
+                                    <i class="fas fa-user-minus"></i> Remover
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="no-alunos">Nenhum aluno matriculado nesta turma.</p>
+                {% endif %}
+            </div>
+        </div>
+    
+            <div class="actions">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Adicionar Selecionados
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const alunosItems = document.querySelectorAll('.alunos-disponiveis .aluno-item');
+            
+            alunosItems.forEach(item => {
+                const nome = item.querySelector('label').textContent.toLowerCase();
+                if (nome.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        function removeAluno(email) {
+            if (confirm('Deseja remover este aluno da turma?')) {
+                fetch(`/professor/turmas/alunos/{{turma.codigo_disciplina}}/matricula`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        turma_codigo: '{{ turma.codigo_disciplina }}',
+                        email: email
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

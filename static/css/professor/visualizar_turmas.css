@@ -151,12 +151,6 @@ h1 {
     color: #4169E1;
 }
 
-.edit-btn:hover,
-.delete-btn:hover {
-    opacity: 0.8;
-}
-
-
 
 .empty-message {
     text-align: center;

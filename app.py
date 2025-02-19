@@ -37,6 +37,19 @@ class Turma(db.Model):
                            lazy='subquery',
                            backref=db.backref('turmas', lazy=True))
 
+class Nota(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    aluno_email = db.Column(db.String(150), db.ForeignKey('user.email'), nullable=False)
+    turma_codigo = db.Column(db.String(100), db.ForeignKey('turma.codigo_disciplina'), nullable=False)
+    nota1 = db.Column(db.Float, nullable=True)
+    nota2 = db.Column(db.Float, nullable=True)
+    nota3 = db.Column(db.Float, nullable=True)
+    
+    aluno = db.relationship('User', backref='notas')
+    turma = db.relationship('Turma', backref='notas')
+    
+    __table_args__ = (db.UniqueConstraint('aluno_email', 'turma_codigo', name='unique_aluno_turma'),)
+
 with app.app_context():
     db.create_all()
 
@@ -89,6 +102,10 @@ def login():
             flash('Credenciais inválidas. Tente novamente.')
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/admin/CRUD_usuarios/gerenciar_usuarios', methods=['GET', 'POST'])
 def gerenciar_usuarios():
@@ -361,7 +378,6 @@ def visualizar_turmas_aluno():
     mes_atual = datetime.now().month
     semestre_atual = 1 if mes_atual <= 6 else 2
 
-    # Filtra turmas do semestre atual
     turmas_atuais = [turma for turma in turmas if turma.ano == ano_atual and turma.semestre == semestre_atual]
     
     return render_template('aluno/visualizar_turmas_aluno.html', 
@@ -377,27 +393,12 @@ def visualizar_detalhes_turma_aluno(codigo):
     turma = Turma.query.get_or_404(codigo)
     aluno = User.query.filter_by(email=session['email']).first()
     
-    # Verifica se o aluno está matriculado na turma
     if aluno not in turma.alunos:
         return redirect(url_for('visualizar_turmas_aluno'))
     
     return render_template('aluno/visualizar_turmas_aluno.html', 
                          turma=turma,
                          aluno=aluno)
-
-@app.route('/aluno/notas')
-def visualizar_notas():
-    if 'email' not in session or session['cargo'] != 'Aluno':
-        return redirect(url_for('login'))
-    
-    aluno = User.query.filter_by(email=session['email']).first()
-    turmas = aluno.turmas
-    
-    periodos = sorted(set(f"{turma.ano}.{turma.semestre}" for turma in turmas))
-    
-    return render_template('aluno/visualizar_notas.html', 
-                         turmas=turmas,
-                         periodos=periodos)
 
 @app.route('/aluno/gerenciar_perfil_aluno', methods=['GET', 'POST'])
 def gerenciar_perfil_aluno():
@@ -415,7 +416,97 @@ def gerenciar_perfil_aluno():
             return redirect(url_for('gerenciar_perfil_aluno'))
     return render_template('aluno/gerenciar_perfil_aluno.html', user=user)
 
+@app.route('/professor/lancar_notas/<codigo>', methods=['GET', 'POST'])
+def lancar_notas(codigo):
+    if 'email' not in session or session['cargo'] != 'Professor':
+        return redirect(url_for('login'))
+        
+    turma = Turma.query.get_or_404(codigo)
+    
+    if request.method == 'POST':
+        try:
+            for aluno in turma.alunos:
+                nota = Nota.query.filter_by(
+                    aluno_email=aluno.email,
+                    turma_codigo=codigo
+                ).first()
+                
+                if not nota:
+                    nota = Nota(
+                        aluno_email=aluno.email,
+                        turma_codigo=codigo
+                    )
+                    db.session.add(nota)
+                
+                nota.nota1 = float(request.form.get(f'nota1_{aluno.email}') or 0)
+                nota.nota2 = float(request.form.get(f'nota2_{aluno.email}') or 0)
+                nota.nota3 = float(request.form.get(f'nota3_{aluno.email}') or 0)
+            
+            db.session.commit()
+            flash('Notas lançadas com sucesso!')
+            return redirect(url_for('lancar_notas', codigo=codigo))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Erro ao lançar notas.')
+    
+    alunos_notas = []
+    for aluno in turma.alunos:
+        nota = Nota.query.filter_by(
+            aluno_email=aluno.email,
+            turma_codigo=codigo
+        ).first()
+        
+        if not nota:
+            nota = Nota(
+                aluno_email=aluno.email,
+                turma_codigo=codigo,
+                nota1=0,
+                nota2=0,
+                nota3=0
+            )
+            db.session.add(nota)
+            db.session.commit()
+        
+        alunos_notas.append({
+            'aluno': aluno,
+            'notas': nota
+        })
+    
+    return render_template('professor/lancar_notas.html',
+                         turma=turma,
+                         alunos_notas=alunos_notas)
 
+@app.route('/aluno/visualizar_notas')
+def visualizar_notas():
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    
+    aluno = User.query.filter_by(email=session['email']).first()
+    turmas = aluno.turmas
+    
+    periodos = sorted(set(f"{turma.ano}.{turma.semestre}" for turma in turmas), reverse=True)
+    
+    for turma in turmas:
+        nota = Nota.query.filter_by(
+            aluno_email=aluno.email,
+            turma_codigo=turma.codigo_disciplina
+        ).first()
+        
+        if not nota:
+            nota = Nota(
+                aluno_email=aluno.email,
+                turma_codigo=turma.codigo_disciplina,
+                nota1=None,
+                nota2=None,
+                nota3=None
+            )
+            db.session.add(nota)
+    db.session.commit()
+    
+    return render_template('aluno/visualizar_notas.html', 
+                         turmas=turmas,
+                         periodos=periodos)
 
 if __name__ == '__main__':
     app.run(debug=True)

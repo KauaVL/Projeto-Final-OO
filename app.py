@@ -82,7 +82,7 @@ def login():
             session['cargo'] = user.cargo
             session['email'] = user.email
             if user.cargo == 'Aluno':
-                return redirect(url_for('dashboard_aluno'))
+                return redirect(url_for('visualizar_turmas_aluno'))
             elif user.cargo == 'Professor':
                 return redirect(url_for('visualizar_turmas'))
         else:
@@ -325,7 +325,7 @@ def gerenciamento_aluno_prof(codigo):
                          alunos_matriculados=alunos_matriculados)
 
 
-@app.route('/gerenciar_perfil/<email>', methods=['GET', 'POST'])
+@app.route('/gerenciar_perfil_professor/<email>', methods=['GET', 'POST'])
 def gerenciar_perfil(email):
     user = User.query.get_or_404(email)
     if request.method == 'POST':
@@ -336,8 +336,86 @@ def gerenciar_perfil(email):
             return redirect(url_for('visualizar_turmas'))
         except Exception as e:
             db.session.rollback()
-            return redirect(url_for('gerenciar_perfil', email=email))
-    return render_template('gerenciar_perfil.html', user=user)
+            return redirect(url_for('gerenciar_perfil_professor', email=email))
+    return render_template('gerenciar_perfil_professor.html', user=user)
+
+@app.route('/aluno/visualizar_turmas_aluno')
+def dashboard_aluno():
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    
+    aluno = User.query.filter_by(email=session['email']).first()
+    turmas = aluno.turmas
+    return render_template('aluno/visualizar_turmas_aluno.html', turmas=turmas)
+
+@app.route('/aluno/visualizar_turmas_aluno')
+def visualizar_turmas_aluno():
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    
+    aluno = User.query.filter_by(email=session['email']).first()
+    turmas = aluno.turmas
+
+    from datetime import datetime
+    ano_atual = datetime.now().year
+    mes_atual = datetime.now().month
+    semestre_atual = 1 if mes_atual <= 6 else 2
+
+    # Filtra turmas do semestre atual
+    turmas_atuais = [turma for turma in turmas if turma.ano == ano_atual and turma.semestre == semestre_atual]
+    
+    return render_template('aluno/visualizar_turmas_aluno.html', 
+                         turmas=turmas_atuais,
+                         ano_atual=ano_atual,
+                         semestre_atual=semestre_atual)
+
+@app.route('/aluno/visualizar_turmas_aluno/<codigo>')
+def visualizar_detalhes_turma_aluno(codigo):
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    
+    turma = Turma.query.get_or_404(codigo)
+    aluno = User.query.filter_by(email=session['email']).first()
+    
+    # Verifica se o aluno está matriculado na turma
+    if aluno not in turma.alunos:
+        return redirect(url_for('visualizar_turmas_aluno'))
+    
+    return render_template('aluno/visualizar_turmas_aluno.html', 
+                         turma=turma,
+                         aluno=aluno)
+
+@app.route('/aluno/notas')
+def visualizar_notas():
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    
+    aluno = User.query.filter_by(email=session['email']).first()
+    turmas = aluno.turmas
+    
+    periodos = sorted(set(f"{turma.ano}.{turma.semestre}" for turma in turmas))
+    
+    return render_template('aluno/visualizar_notas.html', 
+                         turmas=turmas,
+                         periodos=periodos)
+
+@app.route('/aluno/gerenciar_perfil_aluno', methods=['GET', 'POST'])
+def gerenciar_perfil_aluno():
+    if 'email' not in session or session['cargo'] != 'Aluno':
+        return redirect(url_for('login'))
+    user = User.query.get_or_404(session['email'])
+    if request.method == 'POST':
+        try:
+            user.nome = request.form['nome']
+            user.senha = request.form['senha']
+            db.session.commit()
+            return redirect(url_for('dashboard_aluno'))
+        except Exception as e:
+            db.session.rollback()
+            return redirect(url_for('gerenciar_perfil_aluno'))
+    return render_template('aluno/gerenciar_perfil_aluno.html', user=user)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

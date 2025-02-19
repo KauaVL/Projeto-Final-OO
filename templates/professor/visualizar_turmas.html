@@ -12,9 +12,8 @@
         <h2>U N B</h2>
         <ul>
             <li><a href="{{ url_for('visualizar_turmas') }}"><i class="fas fa-users"></i>Turmas</a></li>
-            <li><a href="#"><i class="fas fa-user-plus"></i> Lançar Notas</a></li>
             <li><a href="{{ url_for('gerenciar_perfil', email=session['email'])}}"><i class="fa-solid fa-user"></i>Gerenciar Perfil</a></li>
-            <li><a href="#"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a></li>
+            <li><a href="{{ url_for('logout') }}"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a></li>
         </ul>
     </div>
     <div class="container">
@@ -40,6 +39,9 @@
                             <td>
                                 <a href="{{ url_for('visualizar_alunos_prof', codigo=turma.codigo_disciplina) }}" class="action-btn view-btn">
                                     <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('lancar_notas', codigo=turma.codigo_disciplina) }}" class="action-btn edit-btn" title="Lançar Notas">
+                                    <i class="fa-solid fa-sliders"></i>                                 
                                 </a>
                             </td>
                         </tr>

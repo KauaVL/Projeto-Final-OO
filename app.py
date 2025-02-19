@@ -81,14 +81,14 @@ def login():
             session['nome'] = user.nome
             session['cargo'] = user.cargo
             session['email'] = user.email
-            return redirect(url_for('dashboard'))
+            if user.cargo == 'Aluno':
+                return redirect(url_for('dashboard_aluno'))
+            elif user.cargo == 'Professor':
+                return redirect(url_for('visualizar_turmas'))
         else:
             flash('Credenciais inválidas. Tente novamente.')
     return render_template('login.html')
 
-@app.route('/dashboard')
-def dashboard():
-    return render_template('dashboard.html')
 
 @app.route('/admin/CRUD_usuarios/gerenciar_usuarios', methods=['GET', 'POST'])
 def gerenciar_usuarios():
@@ -269,14 +269,14 @@ def vizualizar_alunos(codigo):
                          alunos=alunos)
 
 
-@app.route('/professor/turmas', methods=['GET'])
+@app.route('/professor/visualizar_turmas', methods=['GET'])
 def visualizar_turmas():
     email = session['email']
     turmas = Turma.query.filter_by(professor_email=email).all()
     return render_template('professor/visualizar_turmas.html', turmas=turmas)
 
 
-@app.route('/professor/turmas/alunos/<codigo>', methods=['GET'])
+@app.route('/professor/visualizar_turmas/alunos/<codigo>', methods=['GET'])
 def visualizar_alunos_prof(codigo):
     turma = Turma.query.get_or_404(codigo)
     alunos = turma.alunos
@@ -284,7 +284,7 @@ def visualizar_alunos_prof(codigo):
                          turma=turma, 
                          alunos=alunos)
 
-@app.route('/professor/turmas/alunos/<codigo>/matricula', methods=['GET', 'POST'])
+@app.route('/professor/visualizar_turmas/alunos/<codigo>/matricula', methods=['GET', 'POST'])
 def gerenciamento_aluno_prof(codigo):
     turma = Turma.query.get_or_404(codigo)
     
@@ -307,14 +307,13 @@ def gerenciamento_aluno_prof(codigo):
 
         try:
             aluno = User.query.get_or_404(email)
-        
             turma.alunos.remove(aluno)
             db.session.commit()
             return jsonify({'success': True})
         except Exception as e:
             db.session.rollback()
             return jsonify({'success': False, 'error': str(e)}), 400
-    
+        
     alunos_matriculados = turma.alunos
     alunos_disponiveis = User.query.filter_by(cargo='Aluno').filter(
         ~User.turmas.any(Turma.codigo_disciplina == codigo)
@@ -325,6 +324,20 @@ def gerenciamento_aluno_prof(codigo):
                          alunos_disponiveis=alunos_disponiveis,
                          alunos_matriculados=alunos_matriculados)
 
+
+@app.route('/gerenciar_perfil/<email>', methods=['GET', 'POST'])
+def gerenciar_perfil(email):
+    user = User.query.get_or_404(email)
+    if request.method == 'POST':
+        try:
+            user.nome = request.form['nome']
+            user.senha = request.form['senha']
+            db.session.commit()
+            return redirect(url_for('visualizar_turmas'))
+        except Exception as e:
+            db.session.rollback()
+            return redirect(url_for('gerenciar_perfil', email=email))
+    return render_template('gerenciar_perfil.html', user=user)
 
 if __name__ == '__main__':
     app.run(debug=True)

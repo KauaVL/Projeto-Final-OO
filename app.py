@@ -12,11 +12,58 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+class Usuario:
+    def __init__(self, nome, email, senha):
+        self.nome = nome
+        self.email = email
+        self.senha = senha
+
+class Aluno(Usuario):
+    def __init__(self, nome, email, senha):
+        super().__init__(nome, email, senha)
+        self.historico = Historico()  
+
+    def verificar_acesso(self):
+        return "Aluno"
+
+class Professor(Usuario):
+    def __init__(self, nome, email, senha):
+        super().__init__(nome, email, senha)
+        self.disciplinas = []  
+
+    def verificar_acesso(self):
+        return "professor"
+
+class Historico:
+    def __init__(self):
+        self.notas = {}
+        
+    def adicionar_nota(self, disciplina, nota):
+        self.notas[disciplina] = nota
+        
+    def calcular_media(self):
+        if not self.notas:
+            return 0
+        return sum(self.notas.values()) / len(self.notas)
+
 class User(db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False, primary_key=True)
     nome = db.Column(db.String(150), nullable=False)
     cargo = db.Column(db.String(50), nullable=False)
     senha = db.Column(db.String(150), nullable=False)
+
+    def criar_usuario_especifico(self):
+        if self.cargo == 'Aluno':
+            return Aluno(self.nome, self.email, self.senha)
+        elif self.cargo == 'Professor':
+            return Professor(self.nome, self.email, self.senha)
+        return None
+
+    def verificar_permissoes(self):
+        usuario = self.criar_usuario_especifico()
+        if usuario:
+            return usuario.verificar_acesso()
+        return None
 
 alunos_turmas = db.Table('alunos_turmas',
     db.Column('aluno_email', db.String(150), db.ForeignKey('user.email'), primary_key=True),
@@ -89,14 +136,15 @@ def login():
             session['nome'] = 'Administrador'
             session['cargo'] = 'admin'
             return redirect(url_for('gerenciar_usuarios'))
+        
         user = User.query.filter_by(email=email).first()
         if user and user.senha == senha:
             session['nome'] = user.nome
-            session['cargo'] = user.cargo
+            session['cargo'] = user.verificar_permissoes()  
             session['email'] = user.email
-            if user.cargo == 'Aluno':
+            if session['cargo'] == 'Aluno':
                 return redirect(url_for('visualizar_turmas_aluno'))
-            elif user.cargo == 'Professor':
+            elif session['cargo'] == 'professor':
                 return redirect(url_for('visualizar_turmas'))
         else:
             flash('Credenciais inválidas. Tente novamente.')
@@ -418,7 +466,7 @@ def gerenciar_perfil_aluno():
 
 @app.route('/professor/lancar_notas/<codigo>', methods=['GET', 'POST'])
 def lancar_notas(codigo):
-    if 'email' not in session or session['cargo'] != 'Professor':
+    if 'email' not in session or session['cargo'] != 'professor':
         return redirect(url_for('login'))
         
     turma = Turma.query.get_or_404(codigo)

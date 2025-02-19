@@ -337,7 +337,7 @@ def gerenciar_perfil(email):
         except Exception as e:
             db.session.rollback()
             return redirect(url_for('gerenciar_perfil_professor', email=email))
-    return render_template('gerenciar_perfil_professor.html', user=user)
+    return render_template('professor/gerenciar_perfil_professor.html', user=user)
 
 @app.route('/aluno/visualizar_turmas_aluno')
 def dashboard_aluno():

@@ -35,6 +35,12 @@ Sistema desenvolvido para a disciplina de Orientação a Objetos da Universidade
 - SQLite (Banco de Dados)
 - HTML/CSS
 - JavaScript
+- Docker
+
+## Pré-requisitos
+
+- Docker
+- Docker Compose
 
 ## Instalação
 
@@ -44,28 +50,19 @@ git clone https://github.com/seu-usuario/nome-do-repositorio.git
 cd nome-do-repositorio
 ```
 
-2. Crie um ambiente virtual:
+2. Construir a imagem e rodar o container:
 ```bash
-python -m venv venv
+docker-compose up --build
 ```
 
-3. Ative o ambiente virtual:
+3.Acessar a aplicação:
 ```bash
-# Windows
-venv\Scripts\activate
-
-# Linux/macOS
-source venv/bin/activate
+http://localhost:5000
 ```
 
-4. Instale as dependências:
+3.Desligar container:
 ```bash
-pip install -r requirements.txt
-```
-
-5. Execute o aplicativo:
-```bash
-python app.py
+docker-compose down
 ```
 
 ## Estrutura do Projeto
@@ -84,7 +81,11 @@ projetofinal_OO/
 │   ├── home.html
 │   ├── login.html
 │   └── signup.html
-└── users.db
+└── requirements.txt
+│── docker-compose.yml
+│── Dockerfile
+│── data/
+
 ```
 
 ## Credenciais de Administrador

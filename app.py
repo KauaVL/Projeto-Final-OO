@@ -2,18 +2,20 @@ from flask import Flask, redirect, render_template, request, url_for, flash, ses
 from flask_sqlalchemy import SQLAlchemy
 import os
 from websocket_manager import init_socketio, notify_grade_update
+from datetime import timedelta
+import uuid
 
 ADMIN_LOGIN = {
     'email': 'admin@admin.com',
     'senha': 'admin123'
 }
 
-# Criar a pasta 'data' se ela não existir
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 
 if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR)  # Cria a pasta automaticamente
+    os.makedirs(DATA_DIR)  
 
 DB_PATH = os.path.join(BASE_DIR, 'data', 'users.db')  
 
@@ -21,6 +23,13 @@ app = Flask(__name__)
 app.secret_key = 'supersenha'
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = os.path.join(BASE_DIR, 'flask_session')
 
 db = SQLAlchemy(app)
 
@@ -144,15 +153,22 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         senha = request.form['senha']
+        
         if email == ADMIN_LOGIN['email'] and senha == ADMIN_LOGIN['senha']:
+            session.clear()  
+            session.permanent = True
+            session['id'] = str(uuid.uuid4())  
             session['nome'] = 'Administrador'
             session['cargo'] = 'admin'
             return redirect(url_for('gerenciar_usuarios'))
         
         user = User.query.filter_by(email=email).first()
         if user and user.senha == senha:
+            session.clear() 
+            session.permanent = True
+            session['id'] = str(uuid.uuid4())  
             session['nome'] = user.nome
-            session['cargo'] = user.verificar_permissoes()  
+            session['cargo'] = user.verificar_permissoes()
             session['email'] = user.email
             if session['cargo'] == 'Aluno':
                 return redirect(url_for('visualizar_turmas_aluno'))
@@ -502,7 +518,6 @@ def lancar_notas(codigo):
                 nota.nota2 = float(request.form.get(f'nota2_{aluno.email}') or 0)
                 nota.nota3 = float(request.form.get(f'nota3_{aluno.email}') or 0)
                 
-                # Notificar aluno sobre atualização de nota
                 notify_grade_update(aluno.email, turma.nome)
             
             db.session.commit()
@@ -573,4 +588,4 @@ def visualizar_notas():
 
 if __name__ == '__main__':
     socketio = init_socketio(app)
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)

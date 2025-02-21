@@ -6,27 +6,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     socket.on('grade_update', function(data) {
-        // Criar notificação
         const notification = document.createElement('div');
         notification.className = 'notification';
-        notification.innerHTML = `
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                ${data.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
+        notification.textContent = data.message;
         
-        // Adicionar ao DOM
         document.body.appendChild(notification);
         
-        // Remover após 5 segundos
+        const audio = new Audio('/static/notification.mp3');
+        audio.play().catch(e => console.log('Erro ao tocar som:', e));
+        
         setTimeout(() => {
-            notification.remove();
+            notification.style.animation = 'slideOut 0.5s ease-in';
+            setTimeout(() => notification.remove(), 500);
         }, 5000);
 
-        // Se estiver na página de notas, atualizar automaticamente
         if (window.location.pathname.includes('/visualizar_notas')) {
-            window.location.reload();
+            setTimeout(() => window.location.reload(), 1000);
         }
     });
 });

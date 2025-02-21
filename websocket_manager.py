@@ -41,22 +41,12 @@ def handle_grade_update(data):
         print(f'Erro ao atualizar nota: {str(e)}')
         return False
 
-def notify_grade_update(aluno_email, disciplina, nota_tipo=None, valor=None):
+def notify_grade_update(aluno_email, disciplina):
     try:
-        if not aluno_email or not disciplina:
-            raise ValueError("Email do aluno e disciplina são obrigatórios")
-
-        message = f'Nova nota lançada para a disciplina {disciplina}'
-        if nota_tipo and valor:
-            message += f': {nota_tipo} = {valor}'
-        
-        emit('grade_update', {
-            'message': message,
-            'disciplina': disciplina,
-            'nota_tipo': nota_tipo,
-            'valor': valor
+        socketio.emit('grade_update', {
+            'message': f'Notas atualizadas na disciplina {disciplina}!',
+            'disciplina': disciplina
         }, room=aluno_email)
-        
         return True
     except Exception as e:
         print(f'Erro ao notificar atualização de nota: {str(e)}')

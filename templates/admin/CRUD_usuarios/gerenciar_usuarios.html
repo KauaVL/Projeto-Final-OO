@@ -9,7 +9,11 @@
     <script>
         function confirmDelete(email) {
             if (confirm('Tem certeza que deseja deletar este usuário?')) {
+                const oldForm = document.getElementById('deleteForm');
+                if (oldForm) oldForm.remove();
+
                 const form = document.createElement('form');
+                form.id = 'deleteForm';
                 form.method = 'POST';
                 form.action = "{{ url_for('gerenciar_usuarios') }}";
                 
@@ -29,7 +33,7 @@
                 form.submit();
             }
         }
-        </script>
+    </script>
 </head>
 <body>
     <div class="navbar">

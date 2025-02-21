@@ -185,7 +185,9 @@ def logout():
 
 @app.route('/admin/CRUD_usuarios/gerenciar_usuarios', methods=['GET', 'POST'])
 def gerenciar_usuarios():
-    users = User.query.all()
+    if 'cargo' not in session or session['cargo'] != 'admin':
+        return redirect(url_for('login'))
+
     if request.method == 'GET':
         users = User.query.all()
         return render_template('admin/CRUD_usuarios/gerenciar_usuarios.html', users=users)
@@ -193,14 +195,27 @@ def gerenciar_usuarios():
     elif request.method == 'POST' and request.form.get('_method') == 'DELETE':
         email = request.form.get('email')
         try:
-            user = User.query.filter_by(email=email).first_or_404()
+            user = User.query.get_or_404(email)
+            
+            if user.cargo == 'Aluno':
+                for turma in user.turmas:
+                    turma.alunos.remove(user)
+            
+            if user.cargo == 'Professor':
+                Turma.query.filter_by(professor_email=email).delete()
+            
+            Nota.query.filter_by(aluno_email=email).delete()
+            
             db.session.delete(user)
             db.session.commit()
+            flash('Usuário deletado com sucesso!')
         except Exception as e:
             db.session.rollback()
-            flash('Erro ao deletar usuário.')
+            flash(f'Erro ao deletar usuário: {str(e)}')
+        
         return redirect(url_for('gerenciar_usuarios'))
-    return render_template('admin/CRUD_usuarios/gerenciar_usuarios.html', users=users)
+    
+    return redirect(url_for('gerenciar_usuarios'))
 
 
 @app.route('/admin/CRUD_usuarios/criar_usuario', methods=['GET', 'POST'])

@@ -23,72 +23,104 @@ Sistema desenvolvido para a disciplina de Orientação a Objetos da Universidade
 
 ### Professores
 - Visualização das turmas ministradas
-- Acesso à lista de alunos matriculados
+- Lançamento e edição de notas
+- Visualização de alunos matriculados
+- Gerenciamento de perfil
+- Sistema de notificações em tempo real
 
 ### Alunos
 - Visualização das turmas matriculadas
+- Consulta de notas e médias
+- Gerenciamento de perfil
+- Recebimento de notificações em tempo real
 
 ## Tecnologias Utilizadas
-- Python 3.x
+- Python 3.11+
 - Flask (Framework Web)
 - SQLAlchemy (ORM)
 - SQLite (Banco de Dados)
-- HTML/CSS
-- JavaScript
+- Socket.IO (Notificações)
+- HTML/CSS/JavaScript
 - Docker
 
 ## Pré-requisitos
 
 - Docker
 - Docker Compose
+- Python 3.11 ou superior (para desenvolvimento local)
 
 ## Instalação
 
+### Usando Docker
+
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/nome-do-repositorio.git
-cd nome-do-repositorio
+git clone https://github.com/seu-usuario/sistema-academico-unb.git
+cd sistema-academico-unb
 ```
 
-2. Construir a imagem e rodar o container:
+2. Construa e execute com Docker:
 ```bash
 docker-compose up --build
 ```
 
-3.Acessar a aplicação:
-```bash
+3. Acesse a aplicação:
+```
 http://localhost:5000
 ```
 
-3.Desligar container:
+4. Para parar o container:
 ```bash
 docker-compose down
+```
+
+### Instalação Local
+
+1. Crie e ative um ambiente virtual:
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+2. Instale as dependências:
+```bash
+pip install -r requirements.txt
+```
+
+3. Execute a aplicação:
+```bash
+python app.py
 ```
 
 ## Estrutura do Projeto
 ```
 projetofinal_OO/
-├── app.py
+├── app.py                 # Arquivo principal
+├── websocket_manager.py   # Gerenciador de WebSocket
 ├── static/
-│   └── css/
-│       ├── CRUD_turmas/
-│       └── CRUD_usuarios/
+│   ├── css/              # Estilos
+│   │   ├── CRUD_turmas/
+│   │   └── CRUD_usuarios/
+│   └── js/               # Scripts
+│       └── notifications.js
 ├── templates/
 │   ├── admin/
 │   │   ├── CRUD_turmas/
 │   │   └── CRUD_usuarios/
-│   ├── dashboard.html
+│   ├── professor/
+│   ├── aluno/
 │   ├── home.html
 │   ├── login.html
 │   └── signup.html
-└── requirements.txt
-│── docker-compose.yml
-│── Dockerfile
-│── data/
-
+├── requirements.txt       # Dependências
+├── docker-compose.yml    # Configuração Docker
+├── Dockerfile           
+└── data/                 # Banco de dados
 ```
 
-## Credenciais de Administrador
+## Credenciais de Acesso
+
+### Administrador
 ```
 Email: admin@admin.com
 Senha: admin123
@@ -109,10 +141,30 @@ Senha: admin123
 - ano
 - semestre
 
+### Nota
+- id (PK)
+- aluno_email (FK)
+- turma_codigo (FK)
+- nota1
+- nota2
+- nota3
+
+## Funcionalidades em Destaque
+
+- Sistema de autenticação multi-nível
+- Notificações em tempo real (websocket)
+- Cálculo automático de médias
+- Interface parcialmente responsiva
+- Proteção contra CSRF
+- Sessões persistentes
+- Validações de entrada
+- Pilares da orientação a objetos aplicados
+
 ## Contribuidores
-- Kaua Vale Leão
-- Arthur Henrique Vieira
-- Jânio Lucas Pereira Carrilho
+
+- Kaua Vale Leão - 232014057
+- Arthur Henrique Vieira - 231034064
+- Jânio Lucas Pereira Carrilho - 232013891
 
 ## Professor Orientador
 Prof. Henrique - Universidade de Brasília (UnB)

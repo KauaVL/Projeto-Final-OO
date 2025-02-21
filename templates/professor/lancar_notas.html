@@ -6,6 +6,8 @@
     <title>Lançar Notas</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/professor/lancar_notas.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
 </head>
 <body>
     <div class="navbar">
@@ -76,6 +78,8 @@
         </form>
     </div>
 
+    <div id="notifications-container"></div>
+
     <script>
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', function() {
@@ -85,6 +89,31 @@
                     .map(input => parseFloat(input.value) || 0)
                     .reduce((a, b) => a + b) / 3;
                 row.querySelector('.media').textContent = media.toFixed(2);
+            });
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const socket = io();
+            
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const inputs = document.querySelectorAll('input[type="number"]');
+                inputs.forEach(input => {
+                    const value = parseFloat(input.value) || 0;
+                    const oldValue = parseFloat(input.defaultValue) || 0;
+                    
+                    if (value !== oldValue) {
+                        const alunoEmail = input.name.split('_')[1];
+                        const notaType = input.name.split('_')[0];
+                        socket.emit('grade_update', {
+                            aluno_email: alunoEmail,
+                            disciplina: '{{ turma.nome }}',
+                            nota_tipo: notaType,
+                            valor: value
+                        });
+                    }
+                });
             });
         });
     </script>

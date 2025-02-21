@@ -1,6 +1,7 @@
 from flask import Flask, redirect, render_template, request, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import os
+from websocket_manager import init_socketio, notify_grade_update
 
 ADMIN_LOGIN = {
     'email': 'admin@admin.com',
@@ -500,6 +501,9 @@ def lancar_notas(codigo):
                 nota.nota1 = float(request.form.get(f'nota1_{aluno.email}') or 0)
                 nota.nota2 = float(request.form.get(f'nota2_{aluno.email}') or 0)
                 nota.nota3 = float(request.form.get(f'nota3_{aluno.email}') or 0)
+                
+                # Notificar aluno sobre atualização de nota
+                notify_grade_update(aluno.email, turma.nome)
             
             db.session.commit()
             flash('Notas lançadas com sucesso!')
@@ -568,4 +572,5 @@ def visualizar_notas():
                          periodos=periodos)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio = init_socketio(app)
+    socketio.run(app, debug=True)

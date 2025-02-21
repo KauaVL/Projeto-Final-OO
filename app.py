@@ -1,13 +1,24 @@
 from flask import Flask, redirect, render_template, request, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 ADMIN_LOGIN = {
     'email': 'admin@admin.com',
     'senha': 'admin123'
 }
+
+# Criar a pasta 'data' se ela não existir
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)  # Cria a pasta automaticamente
+
+DB_PATH = os.path.join(BASE_DIR, 'data', 'users.db')  
+
 app = Flask(__name__)
 app.secret_key = 'supersenha'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_PATH}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

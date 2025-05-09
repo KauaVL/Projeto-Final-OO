@@ -1,7 +1,7 @@
 from flask import session
 from flask_socketio import SocketIO, join_room, leave_room, emit
 
-socketio = SocketIO()
+socketio = SocketIO(async_mode='threading')
 
 @socketio.on('connect')
 def handle_connect():
@@ -57,7 +57,11 @@ def init_socketio(app):
         raise ValueError("Flask app é obrigatório")
     
     try:
-        socketio.init_app(app, cors_allowed_origins="*")
+        socketio.init_app(app, 
+                         cors_allowed_origins="*",
+                         async_mode='threading',
+                         logger=True,
+                         engineio_logger=True)
         print("WebSocket inicializado com sucesso")
         return socketio
     except Exception as e:

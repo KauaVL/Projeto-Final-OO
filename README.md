@@ -169,3 +169,6 @@ Senha: admin123
 ## Professor Orientador
 Prof. Henrique - Universidade de Brasília (UnB)
 
+## Video com apresentaçao (resumida) do projeto:
+
+https://www.youtube.com/watch?v=6OZ9DS8HSsA
